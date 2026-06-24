@@ -1,0 +1,7 @@
+keyboard==0.13.5
+pillow==12.2.0
+PyAutoGUI==0.9.54
+PyGetWindow==0.0.9
+pynput==1.8.2
+pyperclip==1.11.0
+watchdog==6.0.0
