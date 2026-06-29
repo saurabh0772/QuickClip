@@ -53,6 +53,59 @@ def _file_hash(path: Path) -> str:
             h.update(chunk)
     return h.hexdigest()
 
+def sync_shots_dir() -> int:
+    """
+    Scan SHOTS_DIR for image files not yet in the JSON and import them.
+    Returns the number of newly added entries.
+    Useful on startup to pick up screenshots that were saved while the app
+    was not running, or that were there before the JSON existed.
+    """
+    shots = load_shots()
+    known_files = {s["filename"] for s in shots}
+    added = 0
+
+    # Sort oldest-first so the JSON ends up newest-first after inserting
+    existing = sorted(
+        [f for f in SHOTS_DIR.iterdir() if f.suffix.lower() in SCREENSHOT_EXTENSIONS],
+        key=lambda f: f.stat().st_mtime,
+    )
+
+    for img_path in existing:
+        if img_path.name in known_files:
+            continue  # already tracked
+        try:
+            file_hash = _file_hash(img_path)
+        except Exception:
+            continue
+        if any(s.get("hash") == file_hash for s in shots):
+            continue  # duplicate content
+
+        thumb_b64 = _make_thumbnail_b64(img_path)
+        try:
+            mtime = img_path.stat().st_mtime
+            from datetime import datetime as _dt
+            ts = _dt.fromtimestamp(mtime)
+        except Exception:
+            from datetime import datetime as _dt
+            ts = _dt.now()
+
+        shots.insert(0, {
+            "filename": img_path.name,
+            "original": str(img_path),
+            "time": ts.strftime("%d %b %Y, %I:%M %p"),
+            "hash": file_hash,
+            "thumb_b64": thumb_b64,
+        })
+        known_files.add(img_path.name)
+        added += 1
+
+    if added:
+        save_shots(shots[:200])
+        print(f"  📂 Synced {added} existing screenshot(s) from folder.")
+
+    return added
+
+
 def add_screenshot(src_path: Path) -> bool:
     """
     Copy a new screenshot into SHOTS_DIR, record metadata, return True if saved.

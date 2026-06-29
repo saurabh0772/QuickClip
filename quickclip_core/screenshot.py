@@ -4,19 +4,12 @@ import hashlib
 from pathlib import Path
 from datetime import datetime
 from quickclip_core.config import OS, SCREENSHOT_EXTENSIONS, SCREENSHOT_WATCH_DIRS, SHOTS_DIR
-from quickclip_core.storage import add_screenshot
+from quickclip_core.storage import add_screenshot, sync_shots_dir
 from quickclip_core.viewer import generate_viewer
 
 def _handle_new_file(path: Path):
     """Called whenever a new file appears in a watched directory."""
     if path.suffix.lower() not in SCREENSHOT_EXTENSIONS:
-        return
-    # Simple heuristic: file must be < 5 min old to be considered a fresh screenshot
-    try:
-        age = time.time() - path.stat().st_mtime
-        if age > 300:
-            return
-    except Exception:
         return
 
     if add_screenshot(path):
@@ -90,6 +83,10 @@ def screenshot_monitor():
     Start screenshot monitoring using watchdog if available, else polling.
     macOS/Linux may also get screenshots via clipboard image polling (Pillow needed).
     """
+    # On startup: import any screenshots already in SHOTS_DIR that aren't in the JSON yet
+    if sync_shots_dir() > 0:
+        generate_viewer()
+
     observer = start_screenshot_monitor_watchdog()
 
     # On macOS and Linux, some screenshot tools (e.g. Flameshot, macOS Cmd+Ctrl+Shift+4)
