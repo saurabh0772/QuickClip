@@ -11,7 +11,7 @@ It handles background text polling, automatically tracks screenshot directories,
 - **📝 Clipboard Text Monitoring**: Automatically listens for newly copied text snippets in the background, adding them to your history and highlighting code snippets.
 - **📸 Screenshot Watching**: Watches default OS screenshot folders using `watchdog` (relying on low CPU usage event listeners) with a fallback to polling if the package is missing.
 - **🖼️ Clipboard Image Monitor**: (macOS/Linux) Captures screenshots directly from clipboard-based tools (like Flameshot or native hotkeys) and saves them locally.
-- **⌨️ Active Window Capture Hotkey**: Press **`Ctrl + Alt + Q`** to instantly snap a high-resolution, cropped screenshot of your active window.
+- **⌨️ Active Window Capture Hotkey**: Press **`Ctrl + Alt + Q`** (Windows/Linux) or **`Cmd + I`** (macOS) to instantly snap a high-resolution, cropped screenshot of your active window.
 - **🖥️ Windows DPI-Awareness**: Prevents coordinate misalignment on high-DPI/display-scaled screens, ensuring active window screenshots fit window bounds perfectly.
 - **🌐 Responsive HTML Dashboard**: A beautiful, premium glassmorphism dark dashboard (`viewer.html`) with:
   - Full-text search and filtering.
@@ -45,47 +45,94 @@ e:\py
 
 ## 🚀 Getting Started
 
-### 1. Virtual Environment & Installation
+QuickClip is cross-platform but requires specific system utilities and permissions depending on your OS.
 
-Ensure you have Python 3.8+ installed.
+### 📋 Prerequisites & System Dependencies
+
+Choose your operating system below to install any system-level dependencies before installing Python packages:
+
+#### 🐧 Linux (Ubuntu / Debian / Linux Mint)
+To read the clipboard and capture active windows, you must install the following tools:
+```bash
+sudo apt update
+sudo apt install -y xclip wl-clipboard xdotool x11-utils python3-tk
+```
+> [!IMPORTANT]
+> **Wayland Support**: Many modern Linux distributions use Wayland by default. Global hotkeys (`pynput`) and window screenshot utilities might fail or capture black screens under Wayland. For full feature support, select **Ubuntu on Xorg** (or your desktop environment's X11 session) from the login screen options.
+
+#### 🍏 macOS (Darwin)
+No additional system packages are required, but macOS's strict sandbox security requires you to grant system permissions.
+> [!IMPORTANT]
+> **System Permissions**: When you run the script, macOS will prompt you to grant the following:
+> 1. **Accessibility**: Required for the `pynput` listener to capture global keyboard shortcuts (`Cmd + I`).
+> 2. **Screen Recording**: Required for the script to grab active window screenshot boundaries.
+> 
+> You can manually add and enable your Terminal (e.g., Terminal.app, iTerm2, or VS Code) under:
+> *System Settings > Privacy & Security > Accessibility / Screen Recording*.
+
+#### 🪟 Windows
+No special system utilities are needed.
+> [!TIP]
+> **Elevated Windows**: If you are active on a window running with Administrator privileges (e.g., cmd/PowerShell opened as Admin), the global hotkey `Ctrl + Alt + Q` might not trigger unless the terminal running QuickClip is also running as Administrator.
+
+---
+
+### 💻 Installation & Setup
 
 #### Step 1: Create a Virtual Environment
+Navigate to the project root and create a clean environment:
 ```bash
-# Create the environment named 'venv'
+# Windows
 python -m venv venv
+
+# macOS / Linux
+python3 -m venv venv
 ```
 
 #### Step 2: Activate the Virtual Environment
 ```bash
-venv\Scripts\Activate
+# Windows (Command Prompt)
+venv\Scripts\activate.bat
+
+# Windows (PowerShell)
+venv\Scripts\Activate.ps1
+
+# macOS / Linux (bash/zsh)
+source venv/bin/activate
 ```
 
 #### Step 3: Install Dependencies
-Install the required packages from `requirements.txt`:
+Run the command below. The `requirements.txt` file uses PEP 508 environment markers to automatically detect your OS and install only the appropriate packages:
 ```bash
 pip install -r requirements.txt
 ```
 
+---
 
-### 2. Running QuickClip
+### 🏃 Running QuickClip
 
-To start the monitors, run the root wrapper script:
+Ensure your virtual environment is active, then run:
 
 ```bash
 python quickclip.py
 ```
 
 Upon launching, the script prints a dashboard status banner showing:
-- Active screenshot directories being monitored.
-- Saved files directory path.
-- The path to the live HTML dashboard file.
+- 👁️ Active screenshot directories being monitored.
+- 📁 Saved files directory path (`~/QuickClip_Notes`).
+- 🌐 Local path to your live-updating glassmorphism HTML dashboard.
 
-### 3. Usage Controls
+---
 
-- **Automatic Logging**: Any plain text you copy or screenshot you take (via standard print-screen tools) is automatically logged.
-- **Active Window Capture**: Press **`Ctrl + Alt + Q`** to capture only the active window.
-- **Accessing Dashboard**: Open the generated `viewer.html` located in your system's home directory under `~/QuickClip_Notes/viewer.html` in any web browser.
-- **Termination**: Press `Ctrl + C` in the console window to safely exit the monitor.
+### ⌨️ Usage Controls
+
+| Action | Windows | Linux (Ubuntu) | macOS |
+| :--- | :--- | :--- | :--- |
+| **Active Window Screenshot** | `Ctrl + Alt + Q` | `Ctrl + Alt + Q` | `Cmd + I` |
+| **Clipboard Text History** | Automatically logged on copy | Automatically logged on copy | Automatically logged on copy |
+| **Clipboard Image Capture** | N/A (Uses file watch folders) | Automatically logged on copy | Automatically logged on copy |
+| **Access Dashboard** | Open `~/QuickClip_Notes/viewer.html` | Open `~/QuickClip_Notes/viewer.html` | Open `~/QuickClip_Notes/viewer.html` |
+| **Stop Monitor** | `Ctrl + C` | `Ctrl + C` | `Ctrl + C` |
 
 ---
 

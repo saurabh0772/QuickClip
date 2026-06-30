@@ -1,8 +1,20 @@
-keyboard==0.13.5
-pillow==12.2.0
-PyAutoGUI==0.9.54
-PyGetWindow==0.0.9
-pynput==1.8.2
-pyperclip==1.11.0
-watchdog==6.0.0
-requests
+# ── Core Dependencies (Cross-Platform) ────────────────────────────────────────
+requests>=2.31.0
+pyperclip>=1.8.2
+pillow>=10.2.0
+watchdog>=4.0.0
+
+# ── Windows Dependencies ──────────────────────────────────────────────────────
+keyboard>=0.13.5; sys_platform == 'win32'
+PyGetWindow>=0.0.9; sys_platform == 'win32'
+
+# ── Linux (Ubuntu/Debian etc.) Dependencies ───────────────────────────────────
+python-xlib>=0.33; sys_platform == 'linux'
+pyautogui>=0.9.54; sys_platform == 'linux'
+
+# ── macOS (Darwin) Dependencies ───────────────────────────────────────────────
+pyobjc-framework-Quartz>=10.0; sys_platform == 'darwin'
+pyobjc-framework-Cocoa>=10.0; sys_platform == 'darwin'
+
+# ── Non-Windows Keyboard/Shortcut Dependencies ────────────────────────────────
+pynput>=1.7.6; sys_platform != 'win32'
